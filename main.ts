@@ -97,6 +97,7 @@ reg(0x13, 0, 2, 1, (v) => {
   const a = v.s[v.sp - 2];
   if (b === 0) return halt(v, 4);
   v.sp -= 2;
+  // INT_MIN / -1 would overflow a 32-bit signed result; the reference keeps INT_MIN.
   v.s[v.sp++] = a === -2147483648 && b === -1 ? a : (a / b) | 0;
 });
 reg(0x14, 0, 2, 1, (v) => {
