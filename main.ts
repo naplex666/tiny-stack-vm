@@ -147,13 +147,14 @@ reg(0x41, 0, 2, 0, (v) => {
 
 // --- input / output ---
 // PRINT: decimal digits via a scratch buffer, no allocation.
+// Uses the unsigned magnitude, so INT_MIN (-2147483648) prints correctly.
 const DIG = new Uint8Array(12);
 
 function printInt(v: Core, x: number): void {
-  let u = x < 0 ? -x : x;
+  let mag = x < 0 ? -x : x;
   let d = 0;
-  if (u === 0) DIG[d++] = 48;
-  else while (u > 0) { DIG[d++] = 48 + (u % 10); u = Math.floor(u / 10); }
+  if (mag === 0) DIG[d++] = 48;
+  else while (mag > 0) { DIG[d++] = 48 + (mag % 10); mag = Math.floor(mag / 10); }
   const len = d + (x < 0 ? 1 : 0);
   if (v.n + len > OUT_CAP) return halt(v, 11);
   v.sp--;
