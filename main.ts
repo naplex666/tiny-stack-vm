@@ -148,7 +148,7 @@ reg(0x41, 0, 2, 0, (v) => {
 
 // --- input / output ---
 // PRINT: decimal digits via a scratch buffer, no allocation.
-// Uses the unsigned magnitude, so INT_MIN (-2147483648) prints correctly.
+// Unsigned magnitude: INT_MIN-safe.
 const DIG = new Uint8Array(12);
 
 function printInt(v: Core, x: number): void {
