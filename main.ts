@@ -15,7 +15,7 @@ type Core = {
   prog: Uint8Array;
   src: Uint8Array;
   out: Uint8Array;
-  n: number;
+  olen: number;
   s: Int32Array;
   sp: number;
   c: Int32Array;
@@ -157,16 +157,16 @@ function printInt(v: Core, x: number): void {
   if (mag === 0) DIG[d++] = 48;
   else while (mag > 0) { DIG[d++] = 48 + (mag % 10); mag = Math.floor(mag / 10); }
   const len = d + (x < 0 ? 1 : 0);
-  if (v.n + len > OUT_CAP) return halt(v, 11);
+  if (v.olen + len > OUT_CAP) return halt(v, 11);
   v.sp--;
-  if (x < 0) v.out[v.n++] = 45;
-  while (d > 0) v.out[v.n++] = DIG[--d];
+  if (x < 0) v.out[v.olen++] = 45;
+  while (d > 0) v.out[v.olen++] = DIG[--d];
 }
 
 reg(0x50, 0, 1, 0, (v) => printInt(v, v.s[v.sp - 1]));
 reg(0x51, 0, 1, 0, (v) => {
-  if (v.n + 1 > OUT_CAP) return halt(v, 11);
-  v.out[v.n++] = v.s[--v.sp] & 255;
+  if (v.olen + 1 > OUT_CAP) return halt(v, 11);
+  v.out[v.olen++] = v.s[--v.sp] & 255;
 });
 reg(0x52, 0, 0, 1, (v) => {
   v.s[v.sp++] = v.ip < v.src.length ? v.src[v.ip++] : -1;
@@ -179,7 +179,7 @@ function run(prog: Uint8Array, src: Uint8Array): { out: Uint8Array; code: number
     prog,
     src,
     out: new Uint8Array(OUT_CAP),
-    n: 0,
+    olen: 0,
     s: new Int32Array(STACK_CAP),
     sp: 0,
     c: new Int32Array(CALL_CAP),
@@ -211,7 +211,7 @@ function run(prog: Uint8Array, src: Uint8Array): { out: Uint8Array; code: number
     op.act(v, k);
     if (v.end) break;
   }
-  return { out: v.out.slice(0, v.n), code: v.code };
+  return { out: v.out.slice(0, v.olen), code: v.code };
 }
 
 // --- driver ---
